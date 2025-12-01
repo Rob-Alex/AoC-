@@ -3,8 +3,6 @@
 #include <string.h>
 #include <fstream>
 
-
-
 int parseRotation(std::string rotation){
   int dir = 1;
   int length = 0;
@@ -28,16 +26,32 @@ public:
   Dial(int iStartPos, int iMaxValue, int iMinValue) : _iStartPos(iStartPos), _iMaxValue(iMaxValue), _iMinValue(iMinValue) {  
     _iCurrPos = _iStartPos;
   }
+  //modular arithmetic 
+  //e.g. with safe LX increments by X 
+  //               RX decrements by X
+  //e.g. Pos: 99, L1 -> 0, Pos: 1, R2 -> 99
+  //so this should work for numbers up to 
   void turnDial(int rotation){
-    int num_rotations = 0;
+    //version 2 
+    int remainder = rotation - (rotation/(_iMaxValue+1))*(_iMaxValue+1);
+    _iPsswrd+=(abs(rotation)/(_iMaxValue+1));
+    if ((_iCurrPos + remainder > _iMaxValue) || (_iCurrPos + remainder < _iMinValue))  {
+      if (_iCurrPos + remainder != _iMinValue && _iCurrPos + remainder != (_iMaxValue + 1) && _iCurrPos != 0) { _iPsswrd++; } 
+    }
+    _iCurrPos = (_iCurrPos + rotation) % (_iMaxValue + 1);
+    if (_iCurrPos < 0) { _iCurrPos = (_iMaxValue+1) + _iCurrPos; }
+     
+    if (_iCurrPos == 0) { _iPsswrd++; }
+    //printf("Current Position: %d \t Zeros: %d \n", _iCurrPos, _iPsswrd);
+    //version 1
+    /*
     //printf("Curr Pos: %d \t with rotation: %d",_iCurrPos, rotation); 
     if ((_iCurrPos + rotation) < _iMinValue) {
       rotation = (_iMaxValue+1) + rotation%(_iMaxValue+1);
-      _iPsswrd++;
     }
     _iCurrPos = (_iCurrPos + rotation%(_iMaxValue+1)) % (_iMaxValue + 1); 
     if (_iCurrPos == 0) { _iPsswrd++; }
-
+    */
     //printf("\t Curr Pos after rotation: %d \t crossing zero %d times\n",_iCurrPos, _iPsswrd); 
   };
 
@@ -47,8 +61,8 @@ public:
 };
 
 int main() {
-    // Advent of Code 2025 - Day 01
-    // Part 1:
+  // Advent of Code 2025 - Day 01
+  // Part 1:
   // get inputs 
   std::string filename = "./inputs/day01.txt";
   std::ifstream ifs(filename);
@@ -64,8 +78,5 @@ int main() {
   }
   printf("Password %d\n",dial.getPsswrd());
 
-    // Part 2:
-
-
-    return 0;
+  return 0;
 }

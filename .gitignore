@@ -1,0 +1,9 @@
+*/inputs/
+*/build/
+
+*.o
+*.out 
+*.exe
+*.a
+*.so
+*.dylib 

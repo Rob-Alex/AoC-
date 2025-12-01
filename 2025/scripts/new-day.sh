@@ -43,13 +43,13 @@ else
 
 int main() {
   printf("Day ${DAY}");
-    // Part 1:
+  // Part 1:
 
 
-    // Part 2:
+  // Part 2:
 
 
-    return 0;
+  return 0;
 }
 EOF
   echo "Created $CPP_FILE"
