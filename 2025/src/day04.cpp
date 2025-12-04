@@ -2,14 +2,16 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fstream>
+#include <vector>
 
 class Wall {
   int* _iSlot; 
   int _iRows;
   int _iColumns;
+  int _iremoved;
 public:
   Wall(){}
-  Wall(int* slots, int rows, int columns) : _iRows(rows+2), _iColumns(columns+2) {
+  Wall(int* slots, int rows, int columns) : _iRows(rows+2), _iColumns(columns+2), _iremoved(0) {
     _iSlot = new int[_iColumns * _iRows];
 
     for(int i = 0; i < this->_iRows; i++){
@@ -30,14 +32,14 @@ public:
   
   int findAccessible(int positions){
     int adjacent = 0;
-    int removable = 0;
     for (int i = 1; i < this->_iRows-1; i++){
       for  (int j = 1; j < this->_iColumns-1; j++){
         adjacent += (*this)(i-1, j) + (*this)(i+1, j) + (*this)(i, j+1) + (*this)(i,j-1);
         adjacent += (*this)(i-1, j-1) + (*this)(i+1, j+1) + (*this)(i-1, j+1) + (*this)(i+1,j-1);
         if (adjacent < positions && (*this)(i,j) > 0 ) { 
-          removable++; 
+          this->_iremoved++; 
           //std::cout << "x";
+          (*this)(i,j)=0; 
         } else { 
           //if ((*this)(i,j) > 0) { std::cout << "@"; } else {std::cout << "."; }
         }
@@ -45,7 +47,7 @@ public:
       }
       //std::cout << std::endl;
     }
-    return removable;
+    return this->_iremoved;
   }
   int& operator()(int i, int j) {
       return _iSlot[(i * _iColumns) + j];
@@ -88,8 +90,15 @@ int main() {
   }
 
   Wall wall(slotsArray, rows, columns);
-  std::cout << "available positions: "  << std::endl << wall.findAccessible(4);  
-
+  bool isEmpty = 0;
+  int curr = 0; 
+  int prev = 0;
+  while(!isEmpty){
+    curr = wall.findAccessible(4);
+    if (curr == prev) { isEmpty = 1; }
+    prev = curr;
+  } 
+  std::cout << curr; 
 
   // Part 2:
 
