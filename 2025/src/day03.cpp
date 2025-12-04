@@ -17,11 +17,6 @@ public:
   void setJoltage(int joltage) { this->_iJoltage = joltage; }
 };
 
-
-bool order_joltage(Battery* first, Battery* second){
-  return (first->getJoltage() > second->getJoltage());
-}
-
 struct BatteryNode {
   BatteryNode* _pNext;
   BatteryNode* _pPrev;
@@ -56,47 +51,7 @@ public:
   }
   BatteryNode* getTail(){
     return _pTail;
-  }
-  /* bubble sort joltage 
-  void sort_by_joltage(){
-    if(_pHead == _pTail){
-      return; 
-    }
-    bool swaps = true;
-    while (swaps) {
-      swaps = false;
-      for (BatteryNode* iter = _pHead; iter != nullptr; iter = iter->_pNext){
-        if (iter->_pNext == nullptr){
-          break;
-        }
-        BatteryNode* first = iter;
-        BatteryNode* second = iter->_pNext;
-        if (order_joltage(first->_pBattery, second->_pBattery)) {
-          Battery* tmpBattery = second->_pBattery;
-          second->_pBattery = first->_pBattery;
-          first->_pBattery = tmpBattery;
-          swaps = true;
-        }
-      }
-    }
-  }
-  */
-
-  int makeBattery(){
-    BatteryList bigBattery[12]; 
-    bigBattery->_pHead = _pHead; 
-    bigBattery->_pTail = nullptr;
-    int position = 12;
-    for (BatteryNode* iter1 = bigBattery->_pHead; iter1 != nullptr; iter1 = iter1->_pNext){ 
-      BatteryNode* MinimumPosition = _pTail-position; 
-      for (BatteryNode* iter2 = bigBattery->_pHead->_pNext; iter2 != (_pTail - position); iter2 = iter2->_pNext){
-        if (iter1 != nullptr){
-        std::cout << iter2->_pBattery->getJoltage() << std::endl;
-        }
-      }
-    }
-    return 0;
-  }
+  } 
 
   // find the battery joltage (part 1) 
   /*int makeBattery(){
@@ -135,15 +90,77 @@ public:
   }
 };
 
+//987654321111111
+//811111111111119
+//234234234234278
+//818181911112111
+//forward iteration  
+/*
+int makeBattery(BatteryList batteries, int positions){ 
+    BatteryList bigBatteries;
+    
+    BatteryNode* minimumPosition;  
+    int filled_spaces = 0;
+    while (filled_spaces < positions){
+      minimumPosition = batteries.getTail()->_pPrev;
+      for (int i = 0; i <= (positions - filled_spaces); i++){
+        minimumPosition = minimumPosition->_pPrev;
+      }
+      BatteryNode* current = minimumPosition; 
+      for (BatteryNode* iter = minimumPosition; iter != nullptr; iter = iter->_pPrev){
+        if (current->_pBattery->getJoltage() < iter->_pBattery->getJoltage()){ 
+          //std::cout << iter->_pBattery->getJoltage() << ","; 
+          minimumPosition = iter;
+        }
+      }
+      current = minimumPosition;
+      //for (BatteryNode* iter = minimumPosition; iter != nullptr; iter = iter->_pNext){
+      //  if(current->_pBattery->getJoltage() < iter->_pBattery->getJoltage()){
+          //current = iter;
+      //  }
+      //}
+      bigBatteries.push_back(current->_pBattery);
+      filled_spaces++;
+    }
+    std::cout << "big batteries: " << bigBatteries.toString();
+    return 0;
+}*/
+
+//part 2 solution
+unsigned long long makeBattery(BatteryList batteries, int position){
+  BatteryList bigBatteries;
+  int filled_spaces = 0;
+  BatteryNode* start = batteries.getHead();
+
+  while(filled_spaces < position){
+    int remaining = position - filled_spaces;
+    BatteryNode* endNode = batteries.getTail();
+    for (int i = 0; i < (remaining - 1); i++){
+      endNode = endNode->_pPrev;
+    }
+    BatteryNode* maxNode = start;
+    for(BatteryNode* iter = start; iter != endNode->_pNext; iter = iter->_pNext){
+      if (maxNode->_pBattery->getJoltage() < iter->_pBattery->getJoltage()){
+        maxNode = iter;
+      }
+    }
+    bigBatteries.push_back(maxNode->_pBattery);
+
+    start = maxNode->_pNext;
+    filled_spaces++;
+  }
+  return std::stol(bigBatteries.toString());
+}
+
 int main() {
 
-  std::string filename = "./inputs/day03-test.txt";
+  std::string filename = "./inputs/day03.txt";
   std::ifstream ifs(filename);
   if(!ifs) { return -1; }
 
   std::string line;
 
-  int totalJoltage = 0;
+  unsigned long long totalJoltage = 0;
   BatteryList batteries; 
   while(getline(ifs, line)){
     int position = 0;
@@ -155,10 +172,10 @@ int main() {
       position++;
     }
     //batteries.sort_by_joltage();
-    totalJoltage += batteries.makeBattery(); 
+    totalJoltage += makeBattery(batteries, 12); 
     batteries.empty();
   }
-  printf("%d",totalJoltage);
+  printf("%lld",totalJoltage);
 
   return 0;
 }
